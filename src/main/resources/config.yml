@@ -1,0 +1,21 @@
+#冷却时间，单位tick
+CoolDown: 10
+Elevators:
+  elevator1:
+    #是否是ia方块
+    itemadders: false
+    material: IRON_BLOCK
+    minDistance: 3
+    maxDistance: 14
+    #(可选)执行的指令，可以用于播放音效或者粒子效果，[playerName]为玩家名字
+    command:
+    - '/cmi msg [playerName] 1'
+  elevator2:
+    itemadders: true
+    material: jdy:ya_block
+    minDistance: 3
+    maxDistance: 20
+Messages:
+  no-permission: "&c你没有使用电梯的权限！"
+  elevator-up: "&e嗖嗖嗖~上楼咯"
+  elevator-down: "&e嗖嗖嗖~下楼咯"

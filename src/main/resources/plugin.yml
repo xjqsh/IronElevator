@@ -1,0 +1,4 @@
+name: IronElevator
+version: '${project.version}'
+main: me.xjqsh.ironelevator.IronElevator
+api-version: 1.19
