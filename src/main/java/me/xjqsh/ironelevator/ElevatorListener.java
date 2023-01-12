@@ -26,8 +26,14 @@ public class ElevatorListener implements Listener {
         if(!Elevator.isElevator(block))return;
 
         coolDown(player);
-        player.sendMessage("down");
-        Elevator.getElevator(block).use(player,block,false);
+        Elevator elevator = Elevator.getElevator(block);
+        if(!player.hasPermission("ironelevator."+elevator.getName())){
+            String message = ConfigManager.getMessage("no-permission");
+            player.sendMessage(message);
+            return;
+        }
+
+        elevator.use(player,block,false);
     }
 
     @EventHandler
@@ -44,8 +50,14 @@ public class ElevatorListener implements Listener {
         if(!Elevator.isElevator(block))return;
 
         coolDown(player);
-        player.sendMessage("up");
-        Elevator.getElevator(block).use(player,block,true);
+        Elevator elevator = Elevator.getElevator(block);
+        if(!player.hasPermission("ironelevator."+elevator.getName())){
+            String message = ConfigManager.getMessage("no-permission");
+            player.sendMessage(message);
+            return;
+        }
+
+        elevator.use(player,block,true);
     }
 
     public void coolDown(Player player){
@@ -54,6 +66,6 @@ public class ElevatorListener implements Listener {
 
     public boolean isCoolDown(Player player){
         if(!coolDownList.containsKey(player.getUniqueId()))return true;
-        return System.currentTimeMillis()-(10)*50>coolDownList.get(player.getUniqueId());
+        return System.currentTimeMillis()-(ConfigManager.getCoolDown())*50>coolDownList.get(player.getUniqueId());
     }
 }

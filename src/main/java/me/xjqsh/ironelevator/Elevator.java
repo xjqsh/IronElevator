@@ -1,26 +1,52 @@
 package me.xjqsh.ironelevator;
 
 import dev.lone.itemsadder.api.CustomBlock;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerTeleportEvent;
+import org.bukkit.util.Vector;
+
+import java.util.List;
 
 public class Elevator {
 
-    private int minDistance;
-    private int maxDistance;
+    private final int minDistance;
+    private final int maxDistance;
 
-    private boolean isIA;
+    private final boolean isIA;
 
-    private String command;
+    private final List<String> upCommands;
+
+    private final List<String> downCommands;
 
     private Material material;
 
     private String iaNameSpaceId;
 
-    public Elevator(){
+    private final String name;
 
+    protected Elevator(String name,int min, int max, Material material, List<String> upCommands, List<String> downCommands){
+        isIA=false;
+        this.maxDistance=max;
+        this.minDistance=min;
+        this.material=material;
+        this.upCommands=upCommands;
+        this.downCommands=downCommands;
+        this.name=name;
+    }
+
+    protected Elevator(String name,int min, int max, String iaNameSpaceId, List<String> upCommands, List<String> downCommands){
+        isIA=true;
+        this.maxDistance=max;
+        this.minDistance=min;
+        this.iaNameSpaceId=iaNameSpaceId;
+        this.upCommands=upCommands;
+        this.downCommands=downCommands;
+        this.name=name;
     }
 
     public static boolean isElevator(Block block){
@@ -41,26 +67,46 @@ public class Elevator {
         }
     }
 
+    public String getName(){
+        return this.name;
+    }
+
     public boolean use(Player player,Block block,boolean up){
         Location location = block.getLocation();
         for(int i=minDistance;i<=maxDistance;i++){
-            Location target = location.add(0,(up ? 1 : -1)*i,0);
+            Location target = location.add(0,(up ? 1 : -1),0);
+//            player.sendMessage(target.toString());
             if(isIA){
-                CustomBlock customBlock = CustomBlock.byAlreadyPlaced(block);
+                CustomBlock customBlock = CustomBlock.byAlreadyPlaced(target.getBlock());
                 if(customBlock!=null && customBlock.getNamespacedID().equals(iaNameSpaceId)){
-                    if(safeTeleport(player,target))return true;
+                    if(safeTeleport(player,target,up))return true;
                 }
             }
             else if(target.getBlock().getType() == material){
-                if(safeTeleport(player,target))return true;
+//                player.sendMessage(target.getBlock().getType().name());
+                if(safeTeleport(player,target,up))return true;
             }
         }
         return false;
     }
 
-    private boolean safeTeleport(Player player,Location target){
-        if(target.add(0,1,0).getBlock().getType()==Material.AIR && target.add(0,2,0).getBlock().getType()==Material.AIR){
-            player.teleport(target);
+    private boolean safeTeleport(Player player,Location target,boolean up){
+        Location s =  new Location(target.getWorld(),target.getX(),target.getY()+1,target.getZ());
+        if(s.getBlock().getType()==Material.AIR && s.add(0,1,0).getBlock().getType()==Material.AIR){
+            target.add(0.5,1.1,0.5);
+            target.setPitch(player.getLocation().getPitch());
+            target.setYaw(player.getLocation().getYaw());
+            player.teleport(target, PlayerTeleportEvent.TeleportCause.PLUGIN);
+
+            List<String> commands = (up ? upCommands : downCommands);
+
+            if(commands !=null){
+                CommandSender console = Bukkit.getConsoleSender();
+                for (String command : commands){
+                    Bukkit.dispatchCommand(console,command.replace("[playerName]",player.getName()));
+                }
+            }
+
             return true;
         }
         return false;

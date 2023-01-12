@@ -5,11 +5,14 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public final class IronElevator extends JavaPlugin {
 
+    private ConfigManager manager;
+
     @Override
     public void onEnable() {
         // Plugin startup logic
+        saveDefaultConfig();
         Bukkit.getPluginManager().registerEvents(new ElevatorListener(),this);
-
+        this.manager = new ConfigManager();
     }
 
     @Override
